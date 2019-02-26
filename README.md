@@ -48,6 +48,26 @@ qname=xn--twtter-j8a.com, decoded=twītter.com, rtype=1, rdata=184.168.221.43
 qname=xn--twtter-cl8b.com, decoded=twịtter.com, rtype=1, rdata=37.97.254.27
 ```
 
+## Run with Docker
+just run: docker run --rm -ti themiddle/mylittlepuny
+
+```bash
+$ docker run --rm -ti themiddle/mylittlepuny I tw_tter.com
+qname=b'xn--twtter-xva.com', decoded=twìtter.com, rtype=2, rdata=ns12.domaincontrol.com.
+qname=b'xn--twtter-xva.com', decoded=twìtter.com, rtype=2, rdata=ns11.domaincontrol.com.
+qname=b'xn--twtter-4va.com', decoded=twítter.com, rtype=2, rdata=ns12.domaincontrol.com.
+qname=b'xn--twtter-4va.com', decoded=twítter.com, rtype=2, rdata=ns11.domaincontrol.com.
+qname=b'xn--twtter-cwa.com', decoded=twîtter.com, rtype=2, rdata=dns111.ovh.net.
+qname=b'xn--twtter-cwa.com', decoded=twîtter.com, rtype=2, rdata=ns111.ovh.net.
+qname=b'xn--twtter-jwa.com', decoded=twïtter.com, rtype=2, rdata=ns12.domaincontrol.com.
+qname=b'xn--twtter-jwa.com', decoded=twïtter.com, rtype=2, rdata=ns11.domaincontrol.com.
+qname=b'xn--twtter-j8a.com', decoded=twītter.com, rtype=2, rdata=ns06.domaincontrol.com.
+qname=b'xn--twtter-j8a.com', decoded=twītter.com, rtype=2, rdata=ns05.domaincontrol.com.
+qname=b'xn--twtter-cl8b.com', decoded=twịtter.com, rtype=2, rdata=ns2.transip.eu.
+qname=b'xn--twtter-cl8b.com', decoded=twịtter.com, rtype=2, rdata=ns1.transip.nl.
+qname=b'xn--twtter-cl8b.com', decoded=twịtter.com, rtype=2, rdata=ns0.transip.net.
+```
+
 ## Requirements
 - python3
 - dnslib

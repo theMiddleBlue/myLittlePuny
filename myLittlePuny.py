@@ -90,7 +90,7 @@ def parse_answer(qname, decoded_qname, rr):
 	for i in rr:
 		sys.stdout.write("\r\033[K")
 		answ = str(i.rdata)
-		print('qname='+cc.GRN+str(qname)+cc.ECL+', decoded='+cc.BLU+decoded_qname+cc.ECL+', rtype='+str(i.rtype)+', rdata='+cc.HEA+answ+cc.ECL)
+		print('qname='+cc.GRN+str(qname.decode('ascii'))+cc.ECL+', decoded='+cc.BLU+decoded_qname+cc.ECL+', rtype='+str(i.rtype)+', rdata='+cc.HEA+answ+cc.ECL)
 
 
 qlist = {}

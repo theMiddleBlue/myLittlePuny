@@ -1,4 +1,4 @@
-import sys, time, socket, re, argparse, codecs
+import sys, time, socket, re, argparse
 from dnslib import *
 
 debug = False

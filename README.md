@@ -62,5 +62,5 @@ $ python3 myLittlePuny.py --help
 ```
 
 ## Contribute
-Feel free to open a PR!
+Feel free to open a PR!<br>
 [theMiddle](https://twitter.com/Menin_TheMiddle)

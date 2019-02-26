@@ -125,7 +125,7 @@ for qname,decoded_qname in qlist.items():
 	if True:
 		if True:
 			if re.search('xn\-\-', str(qname)) is not None:
-				sys.stdout.write('Trying to resolve '+str(qname)+' ('+decoded_qname+')...')
+				sys.stdout.write(u'Trying to resolve '+ str(qname) + ' (' + decoded_qname + ')...')
 				sys.stdout.flush()
 
 				q = make_query(qname, qtype=dns_qtype)

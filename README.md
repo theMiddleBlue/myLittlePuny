@@ -1,5 +1,6 @@
 # My Little Puny
 A little and ugly Python script that checks for domain names that may be used to perform an [IDN homograph attack](https://en.wikipedia.org/wiki/IDN_homograph_attack).
+<img src="https://i.pinimg.com/originals/0b/2c/b2/0b2cb299a8f442c248d0b645f74b5d33.png" height="200" />
 
 ### Punycode From Wikipedia:
 > Punycode is a representation of Unicode with the limited ASCII character subset used for Internet host names.
@@ -18,7 +19,7 @@ This script has 2 main arguments. The first argument is a capital letter from A 
 The second argument is a "QNAME template" that has an underscore `_` instead of the character you want to check. For Example:
 
 ```bash
-$ python myLittlePuny.py I tw_tter.com
+$ python3 myLittlePuny.py I tw_tter.com
 qname=xn--twtter-xva.com, decoded=twìtter.com, rtype=2, rdata=ns12.domaincontrol.com.
 qname=xn--twtter-xva.com, decoded=twìtter.com, rtype=2, rdata=ns11.domaincontrol.com.
 qname=xn--twtter-4va.com, decoded=twítter.com, rtype=2, rdata=ns12.domaincontrol.com.
@@ -38,7 +39,7 @@ qname=xn--twtter-cl8b.com, decoded=twịtter.com, rtype=2, rdata=ns0.transip.net
 The default QTYPE is NS but you can change it using `--qtype`:
 
 ```bash
-$ python myLittlePuny.py I tw_tter.com --qtype=A
+$ python3 myLittlePuny.py I tw_tter.com --qtype=A
 qname=xn--twtter-xva.com, decoded=twìtter.com, rtype=1, rdata=78.153.209.228
 qname=xn--twtter-4va.com, decoded=twítter.com, rtype=1, rdata=78.153.209.228
 qname=xn--twtter-cwa.com, decoded=twîtter.com, rtype=1, rdata=213.186.33.87

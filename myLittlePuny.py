@@ -3,6 +3,7 @@ from dnslib import *
 
 debug = False
 version = "0.1"
+mypath = os.path.abspath(os.path.dirname(__file__))+'/'
 
 def inlineopts():
 	parser = argparse.ArgumentParser()
@@ -93,7 +94,7 @@ def parse_answer(qname, decoded_qname, rr):
 
 
 qlist = {}
-with open("UnicodeData.txt") as f:
+with open(mypath+"UnicodeData.txt") as f:
 	l = f.readlines()
 	for i in l:
 		if re.search('^[0-9a-fA-F]{4,5};.*SMALL LETTER '+opt.capital[0]+' .*', i.strip()) is not None:

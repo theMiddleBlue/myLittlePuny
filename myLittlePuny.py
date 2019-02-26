@@ -96,7 +96,7 @@ qlist = {}
 with open("UnicodeData.txt") as f:
 	l = f.readlines()
 	for i in l:
-		if re.search('^[0-9a-fA-F]{4,5};.*SMALL LETTER '+opt.capital[0]+'.*', i.strip()) is not None:
+		if re.search('^[0-9a-fA-F]{4,5};.*SMALL LETTER '+opt.capital[0]+' .*', i.strip()) is not None:
 
 			linearr = i.strip().split(";")
 			char = linearr[0]

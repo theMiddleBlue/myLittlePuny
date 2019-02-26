@@ -1,6 +1,6 @@
 # My Little Puny
 A little and ugly Python script that checks for domain names that may be used to perform an [IDN homograph attack](https://en.wikipedia.org/wiki/IDN_homograph_attack).
-<img src="https://i.pinimg.com/originals/0b/2c/b2/0b2cb299a8f442c248d0b645f74b5d33.png" height="200" />
+<img src="https://i.pinimg.com/originals/38/9c/3a/389c3a29708c24a78fa6d8ff2dd1e2f4.png" height="200" />
 
 ### Punycode From Wikipedia:
 > Punycode is a representation of Unicode with the limited ASCII character subset used for Internet host names.

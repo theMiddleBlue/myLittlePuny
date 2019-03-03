@@ -1,7 +1,7 @@
 # most functions need to be completed
 # 
 
-import sys, time, socket, re, argparse, requests
+import sys, time, socket, re, argparse, requests, hashlib, json
 from dnslib import *
 
 debug = False
@@ -101,23 +101,24 @@ hrecursive = {}
 results = {}
 def parse_answer(qname, decoded_qname, rr):
 	answ = ''
-	results[decoded_qname] = []
-	for i in rr:
-		if i.rdata is not None and i.rtype > 0:
-			sys.stdout.write("\r\033[K")
-			answ = str(i.rdata)
-			if re.search('domaincontrol', answ):
-				answcolor = cc.FAL
-			else:
-				answcolor = cc.HEA
-			print('| qname='+cc.GRN+str(qname.decode('ascii'))+cc.ECL+', decoded='+cc.BLU+decoded_qname+cc.ECL+', rtype='+str(i.rtype)+', rdata='+answcolor+answ+cc.ECL)
-			results[decoded_qname].append({"qname":str(qname.decode('ascii')), "rtype":str(i.rtype), "rdata":answ})
+	qnamehash = hashlib.md5(str(qname.decode('ascii')).encode("utf-8")).hexdigest()
 
-			if i.rtype == 1 and opt.httpheaders is True:
-				hrequests[answ] = str(qname.decode('ascii'))
+	if qnamehash not in results:
+		results[qnamehash] = rr
 
-			if opt.recursive is True:
-				hrecursive[decoded_qname] = str(qname.decode('ascii'))
+		for i in rr:
+			if i.rdata is not None and i.rtype > 0:
+				sys.stdout.write("\r\033[K")
+				answ = str(i.rdata)
+
+				print('| qname='+cc.GRN+str(qname.decode('ascii'))+cc.ECL+', decoded='+cc.BLU+decoded_qname+cc.ECL+', rtype='+str(i.rtype)+', rdata='+cc.HEA+answ+cc.ECL)
+				# results[decoded_qname].append({"qname":str(qname.decode('ascii')), "rtype":str(i.rtype), "rdata":answ})
+
+				if i.rtype == 1 and opt.httpheaders is True:
+					hrequests[answ] = str(qname.decode('ascii'))
+
+				if opt.recursive is True:
+					hrecursive[decoded_qname] = str(qname.decode('ascii'))
 
 def enumerate(letter):
 	qlist = {}
@@ -157,23 +158,25 @@ def resolve(qlist):
 		print(" -- results --")
 
 	for qname,decoded_qname in qlist.items():
-		if re.search('xn\-\-', str(qname)) is not None:
-			sys.stdout.write(u'Trying to resolve '+ str(qname) + ' (' + decoded_qname + ')...')
-			sys.stdout.flush()
+		qnamehash = hashlib.md5(str(qname.decode('ascii')).encode("utf-8")).hexdigest()
+		if qnamehash not in results:
+			if re.search('xn\-\-', str(qname)) is not None:
+				sys.stdout.write(u'Trying to resolve '+ str(qname.decode('ascii')) + ' (' + decoded_qname + ')...')
+				sys.stdout.flush()
 
-			q = make_query(qname, qtype=dns_qtype)
+				q = make_query(qname, qtype=dns_qtype)
 
-			try:
-				d = send_query(q, daddr=dns_resolver_ip, dport=53)
+				try:
+					d = send_query(q, daddr=dns_resolver_ip, dport=53)
 
-			except Exception as e:
-				print(" <- Warning: "+str(e))
+				except Exception as e:
+					print(" <- Warning: "+str(e))
 
-			parse_answer(qname, decoded_qname, d.rr)
-			sys.stdout.write("\r\033[K")
-		else:
-			if debug is True:
-				print("Info: ignoring "+str(qname))
+				parse_answer(qname, decoded_qname, d.rr)
+				sys.stdout.write("\r\033[K")
+			else:
+				if debug is True:
+					print("Info: ignoring "+str(qname))
 	
 	print(" -- end --")
 
@@ -209,6 +212,7 @@ else:
 	checkall(opt.template[0])
 	if opt.recursive is True:
 		while len(hrecursive) > 0:
+			print("\n -- recursive job started -- ")
 			for k,v in hrecursive.copy().items():
 				checkall(k)
 				del hrecursive[k]

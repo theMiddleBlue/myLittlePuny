@@ -97,7 +97,7 @@ def send_query(q, daddr="8.8.8.8", dport=53):
 	return DNSRecord.parse(recvdata)
 
 hrequests = {}
-hrecursive = []
+hrecursive = {}
 results = {}
 def parse_answer(qname, decoded_qname, rr):
 	answ = ''
@@ -117,7 +117,7 @@ def parse_answer(qname, decoded_qname, rr):
 				hrequests[answ] = str(qname.decode('ascii'))
 
 			if opt.recursive is True:
-				hrecursive.append(decoded_qname)
+				hrecursive[decoded_qname] = str(qname.decode('ascii'))
 
 def enumerate(letter):
 	qlist = {}
@@ -184,11 +184,12 @@ def checkall(domain):
 
 	c=0
 	for n in list(sld):
-		opt.capital = [n.upper()]
-		opt.template = [gentemplate(sld, tld, c)]
-		qlist = enumerate(opt.capital[0])
-		resolve(qlist)
-		c=(c+1)
+		if re.search('^[A-Z]$', n.upper()) is not None:
+			opt.capital = [n.upper()]
+			opt.template = [gentemplate(sld, tld, c)]
+			qlist = enumerate(opt.capital[0])
+			resolve(qlist)
+			c=(c+1)
 
 def gentemplate(sld, tld, nchar):
 	c=0
@@ -207,12 +208,12 @@ if opt.capital[0] != "ALL":
 else:
 	checkall(opt.template[0])
 	if opt.recursive is True:
-		temprecursive = hrecursive
-		del hrecursive
-		hrecursive = []
-		for i in temprecursive:
-			checkall(i)
-		del temprecursive
+		while len(hrecursive) > 0:
+			for k,v in hrecursive.copy().items():
+				checkall(k)
+				del hrecursive[k]
+
+		#print(hrecursive)
 
 	# do something with results
 	# needs to be completed...

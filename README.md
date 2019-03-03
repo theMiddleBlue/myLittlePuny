@@ -15,7 +15,7 @@ A little and ugly Python script that checks for domain names that may be used to
 > ASCII favored by DNS. It is specified in IETF Request for Comments 3492.
 
 ## Usage
-This script has 2 main arguments. The first argument is a capital letter from A to Z which is used to loops through a list of similar/compatible Unicode characters and convert it to IDN format using Punycode.
+This script has 2 main arguments. The first argument is a capital letter from A to Z which is used to loops through a list of similar/compatible Unicode characters (from http://www.unicode.org/Public/UNIDATA/UnicodeData.txt) and convert it to IDN format using Punycode.
 The second argument is a "QNAME template" that has an underscore `_` instead of the character you want to check. For Example:
 
 ```bash
@@ -34,6 +34,44 @@ qname=xn--twtter-cl8b.com, decoded=twịtter.com, rtype=2, rdata=ns1.transip.nl.
 qname=xn--twtter-cl8b.com, decoded=twịtter.com, rtype=2, rdata=ns2.transip.eu.
 qname=xn--twtter-cl8b.com, decoded=twịtter.com, rtype=2, rdata=ns0.transip.net.
 ...
+```
+
+or, in order to check all lable's chars automatically:
+
+```bash
+$ python3 myLittlePuny.py ALL aol.com --qtype NS
+
+ -- letter=A template=_ol.com --
+| qname=xn--ol-iia.com, decoded=àol.com, rtype=2, rdata=ns1.parkingcrew.net.
+| qname=xn--ol-iia.com, decoded=àol.com, rtype=2, rdata=ns2.parkingcrew.net.
+| qname=xn--ol-lia.com, decoded=áol.com, rtype=2, rdata=ns2.dotster.com.
+| qname=xn--ol-lia.com, decoded=áol.com, rtype=2, rdata=ns1.dotster.com.
+ -- end --
+
+ -- letter=O template=a_l.com --
+| qname=xn--al-8ja.com, decoded=aôl.com, rtype=2, rdata=ns4bty.name.com.
+| qname=xn--al-8ja.com, decoded=aôl.com, rtype=2, rdata=ns3fqs.name.com.
+| qname=xn--al-8ja.com, decoded=aôl.com, rtype=2, rdata=ns2qvz.name.com.
+| qname=xn--al-8ja.com, decoded=aôl.com, rtype=2, rdata=ns1bdg.name.com.
+| qname=xn--al-fka.com, decoded=aöl.com, rtype=2, rdata=ns1.fastpark.net.
+| qname=xn--al-fka.com, decoded=aöl.com, rtype=2, rdata=ns2.fastpark.net.
+| qname=xn--al-lka.com, decoded=aøl.com, rtype=2, rdata=ns-1472.awsdns-56.org.
+| qname=xn--al-lka.com, decoded=aøl.com, rtype=2, rdata=ns-1794.awsdns-32.co.uk.
+| qname=xn--al-lka.com, decoded=aøl.com, rtype=2, rdata=ns-35.awsdns-04.com.
+| qname=xn--al-lka.com, decoded=aøl.com, rtype=2, rdata=ns-840.awsdns-41.net.
+| qname=xn--al-vra.com, decoded=aōl.com, rtype=2, rdata=dns1.registrar-servers.com.
+| qname=xn--al-vra.com, decoded=aōl.com, rtype=2, rdata=dns2.registrar-servers.com.
+| qname=xn--al-68s.com, decoded=aọl.com, rtype=2, rdata=ns-cloud-e1.googledomains.com.
+| qname=xn--al-68s.com, decoded=aọl.com, rtype=2, rdata=ns-cloud-e2.googledomains.com.
+| qname=xn--al-68s.com, decoded=aọl.com, rtype=2, rdata=ns-cloud-e3.googledomains.com.
+| qname=xn--al-68s.com, decoded=aọl.com, rtype=2, rdata=ns-cloud-e4.googledomains.com.
+ -- end --
+
+ -- letter=L template=ao_.com --
+| qname=xn--ao-9pa.com, decoded=aoĺ.com, rtype=2, rdata=ns1.tacomadc.com.
+| qname=xn--ao-9pa.com, decoded=aoĺ.com, rtype=2, rdata=ns2.tacomadc.com.
+ -- end --
+
 ```
 
 The default QTYPE is NS but you can change it using `--qtype`:

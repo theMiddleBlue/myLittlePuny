@@ -1,0 +1,4 @@
+json/*
+!json/.gitkeep
+ignore/*
+!ignore/.gitkeep

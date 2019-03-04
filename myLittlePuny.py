@@ -46,6 +46,11 @@ def inlineopts():
 								dest="recursive",
 								default=False,
 								help='Check each result for ALL punycode (default: off)')
+	parser.add_argument(	"--save-json",
+								action="store_true",
+								dest="savejson",
+								default=False,
+								help='Save result in a JSON file <domain>.json (default: off)')
 
 	return parser.parse_args()
 
@@ -55,6 +60,7 @@ opt = inlineopts()
 dns_resolver_ip = opt.resolver_ip or '8.8.8.8'
 dns_resolver_port = opt.resolver_port or 53
 dns_qtype = opt.qtype or "NS"
+jobhash = hashlib.md5(str(opt.capital[0]+opt.template[0]+dns_qtype).encode("utf-8")).hexdigest()
 
 class cc:
 	HEA = '\033[95m'
@@ -104,7 +110,7 @@ def parse_answer(qname, decoded_qname, rr):
 	qnamehash = hashlib.md5(str(qname.decode('ascii')).encode("utf-8")).hexdigest()
 
 	if qnamehash not in results:
-		results[qnamehash] = rr
+		results[qnamehash] = {"encoded":str(qname.decode('ascii')), "decoded":decoded_qname, "qtype":dns_qtype, "answer":[]}
 
 		for i in rr:
 			if i.rdata is not None and i.rtype > 0:
@@ -113,6 +119,8 @@ def parse_answer(qname, decoded_qname, rr):
 
 				print('| qname='+cc.GRN+str(qname.decode('ascii'))+cc.ECL+', decoded='+cc.BLU+decoded_qname+cc.ECL+', rtype='+str(i.rtype)+', rdata='+cc.HEA+answ+cc.ECL)
 				# results[decoded_qname].append({"qname":str(qname.decode('ascii')), "rtype":str(i.rtype), "rdata":answ})
+				results[qnamehash]["answer"].append({"rtype": i.rtype, "rdata":answ})
+				
 
 				if i.rtype == 1 and opt.httpheaders is True:
 					hrequests[answ] = str(qname.decode('ascii'))
@@ -181,9 +189,9 @@ def resolve(qlist):
 	print(" -- end --")
 
 def checkall(domain):
-	if re.search('^([^\.]+)\.[^\.]+$', domain) is not None:
-		sld = re.match('^([^\.]+)\.([^\.]+)$', domain).group(1)
-		tld = re.match('^([^\.]+)\.([^\.]+)$', domain).group(2)
+	if re.search('^([^\.]+)\.[a-z0-9\-\.]+$', domain) is not None:
+		sld = re.match('^([^\.]+)\.([a-z0-9\-\.]+)$', domain).group(1)
+		tld = re.match('^([^\.]+)\.([a-z0-9\-\.]+)$', domain).group(2)
 
 	c=0
 	for n in list(sld):
@@ -217,12 +225,32 @@ else:
 				checkall(k)
 				del hrecursive[k]
 
-		#print(hrecursive)
+if len(results) > 0:
+	print("\n")
+	print(" -- results --")
+	print("| N. domains: "+str(len(results)))
+	print(" -- list:")
+	for k,v in results.items():
+		if len(v["answer"]) > 0:
+			#print(k+" -> "+str(json.dumps(v)))
+			for i in v["answer"]:
+				print('| qname='+cc.GRN+str(v["encoded"])+cc.ECL+', decoded='+cc.BLU+v["decoded"]+cc.ECL+', rtype='+str(i["rtype"])+', rdata='+cc.HEA+i["rdata"]+cc.ECL)
+				#print(i)
+	print(" -- end --")
 
-	# do something with results
-	# needs to be completed...
-	# print(results)
+# do something with results
+# needs to be completed...
+# print(results)
+if opt.savejson is True:
+	fcontent = ''
+	for k,v in results.items():
+		if len(v["answer"]) > 0:
+			# print(k+" -> "+str(json.dumps(v)))
+			fcontent += str(json.dumps(v))+"\n"
 
+	if fcontent != '':
+		fjson = open(mypath+'json/'+jobhash+'.json', 'w')
+		fjson.write(fcontent)
 
 if opt.httpheaders is True and len(hrequests) > 0:
 	print("\n"+cc.WRN+"HTTP Response Headers:"+cc.ECL)

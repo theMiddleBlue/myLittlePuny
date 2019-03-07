@@ -51,6 +51,12 @@ def inlineopts():
 								dest="savejson",
 								default=False,
 								help='Save result in a JSON file <domain>.json (default: off)')
+	parser.add_argument(	"--enumerate-subdomain",
+								action="store_true",
+								dest="enumsub",
+								default=False,
+								help='Try to enumerate subdomains on each results (default: off)')
+
 
 	return parser.parse_args()
 
@@ -121,13 +127,24 @@ def parse_answer(qname, decoded_qname, rr):
 				# results[decoded_qname].append({"qname":str(qname.decode('ascii')), "rtype":str(i.rtype), "rdata":answ})
 				results[qnamehash]["answer"].append({"rtype": i.rtype, "rdata":answ})
 				
-
 				if i.rtype == 1 and opt.httpheaders is True:
 					hrequests[answ] = str(qname.decode('ascii'))
 
 				if opt.recursive is True:
 					hrecursive[decoded_qname] = str(qname.decode('ascii'))
 
+def parse_subd_answer(subd,rr,ignoreval):
+	answ = ''
+	for i in rr:
+		if i.rdata is not None and i.rtype > 0:
+			sys.stdout.write("\r\033[K")
+			answ = str(i.rdata)
+
+			if answ != ignoreval:
+				print(' `- '+cc.GRN+str(subd.encode("utf-8").decode('idna'))+cc.ECL+' ('+cc.FAL+str(subd)+cc.ECL+'), rtype='+str(i.rtype)+', rdata='+cc.HEA+answ+cc.ECL)
+				# results[decoded_qname].append({"qname":str(qname.decode('ascii')), "rtype":str(i.rtype), "rdata":answ})
+				#results[qnamehash]["answer"].append({"rtype": i.rtype, "rdata":answ})
+	
 def enumerate(letter):
 	qlist = {}
 	with open(mypath+"UnicodeData.txt") as f:
@@ -230,12 +247,58 @@ if len(results) > 0:
 	print(" -- results --")
 	print("| N. domains: "+str(len(results)))
 	print(" -- list:")
+
+	lastenum3rd = ''
+
 	for k,v in results.items():
 		if len(v["answer"]) > 0:
 			#print(k+" -> "+str(json.dumps(v)))
 			for i in v["answer"]:
 				print('| qname='+cc.GRN+str(v["encoded"])+cc.ECL+', decoded='+cc.BLU+v["decoded"]+cc.ECL+', rtype='+str(i["rtype"])+', rdata='+cc.HEA+i["rdata"]+cc.ECL)
 				#print(i)
+
+				# enumerate subdomains
+				if opt.enumsub is True:
+					if lastenum3rd == str(v["encoded"]):
+						continue
+					else:
+						lastenum3rd = str(v["encoded"])
+					ignoreval = ''
+					checkdd = 'nonexistent123.'+str(v["encoded"])
+					q = make_query(checkdd, qtype="A")
+					try:
+						d = send_query(q, daddr=dns_resolver_ip, dport=53)
+						for ii in d.rr:
+							if ii.rdata is not None and ii.rtype > 0:
+								ignoreval = str(ii.rdata)
+								break
+					except Exception as e:
+						ignoreval = ''
+
+					print(" `- ignore value: "+ignoreval)
+
+					with open(mypath+'subdomains-100.txt') as f:
+						l = f.readlines()
+						for i in l:
+							if re.search('^[^#]', i.strip()) is not None:
+								subd = i.strip()+'.'+str(v["encoded"])
+								sys.stdout.write(u'Trying to resolve '+ subd + ' ...')
+								sys.stdout.flush()
+
+								q = make_query(subd, qtype="A")
+
+								try:
+									d = send_query(q, daddr=dns_resolver_ip, dport=53)
+								except Exception as e:
+									print(" <- Warning: "+str(e))
+
+								#parse_answer(v["decoded"], subd, d.rr)
+								parse_subd_answer(subd, d.rr, ignoreval)
+								sys.stdout.write("\r\033[K")
+							else:
+								if debug is True:
+									print("Info: ignoring "+str(subd))
+
 	print(" -- end --")
 
 # do something with results
@@ -251,6 +314,9 @@ if opt.savejson is True:
 	if fcontent != '':
 		fjson = open(mypath+'json/'+jobhash+'.json', 'w')
 		fjson.write(fcontent)
+
+
+
 
 if opt.httpheaders is True and len(hrequests) > 0:
 	print("\n"+cc.WRN+"HTTP Response Headers:"+cc.ECL)

@@ -140,7 +140,7 @@ def parse_subd_answer(subd,rr,ignoreval):
 			sys.stdout.write("\r\033[K")
 			answ = str(i.rdata)
 
-			if answ != ignoreval:
+			if answ not in ignoreval:
 				print(' `- '+cc.GRN+str(subd.encode("utf-8").decode('idna'))+cc.ECL+' ('+cc.FAL+str(subd)+cc.ECL+'), rtype='+str(i.rtype)+', rdata='+cc.HEA+answ+cc.ECL)
 				# results[decoded_qname].append({"qname":str(qname.decode('ascii')), "rtype":str(i.rtype), "rdata":answ})
 				#results[qnamehash]["answer"].append({"rtype": i.rtype, "rdata":answ})
@@ -263,19 +263,18 @@ if len(results) > 0:
 						continue
 					else:
 						lastenum3rd = str(v["encoded"])
-					ignoreval = ''
+					ignoreval = []
 					checkdd = 'nonexistent123.'+str(v["encoded"])
 					q = make_query(checkdd, qtype="A")
 					try:
 						d = send_query(q, daddr=dns_resolver_ip, dport=53)
 						for ii in d.rr:
 							if ii.rdata is not None and ii.rtype > 0:
-								ignoreval = str(ii.rdata)
-								break
+								ignoreval.append(str(ii.rdata))
 					except Exception as e:
-						ignoreval = ''
+						ignoreval = []
 
-					print(" `- ignore value: "+ignoreval)
+					print(" `- ignore value: "+str(ignoreval))
 
 					with open(mypath+'subdomains-100.txt') as f:
 						l = f.readlines()
